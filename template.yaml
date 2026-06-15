@@ -56,6 +56,8 @@ spec:
         description: Hello World app — says "Hello ${{ parameters.name }}"
         repoUrl: github.com?owner=${{ parameters.repoOwner }}&repo=${{ parameters.repoName }}
         defaultBranch: main
+        secrets:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - id: register
       name: Register in Backstage catalog
