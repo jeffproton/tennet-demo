@@ -14,7 +14,7 @@ metadata:
     - argocd
 
 spec:
-  owner: user:default/guest
+  owner: user:development/guest
   type: service
 
   parameters:
