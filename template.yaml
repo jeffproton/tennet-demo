@@ -42,7 +42,7 @@ spec:
           title: GitHub Token
           type: string
           description: GitHub PAT with write:packages scope — used to push images to GHCR
-          ui:widget: password
+          ui:field: Secret
 
   steps:
     - id: fetch
