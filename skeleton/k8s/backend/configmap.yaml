@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: hello-world
+data:
+  GREETING_NAME: "${{ values.name }}"
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_NAME: hello
+  DB_USER: hello
+  REDIS_HOST: redis
+  REDIS_PORT: "6379"

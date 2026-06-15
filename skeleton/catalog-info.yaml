@@ -1,0 +1,11 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.repoName }}
+  description: Hello ${{ values.name }} — React + Java + Postgres + Redis
+  annotations:
+    github.com/project-slug: ${{ values.repoOwner }}/${{ values.repoName }}
+spec:
+  type: service
+  lifecycle: experimental
+  owner: user:default/guest

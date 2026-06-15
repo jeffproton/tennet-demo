@@ -1,0 +1,8 @@
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: tennet-demo-template
+  description: Hello World Backstage template (React + Java + Postgres + Redis + ArgoCD)
+spec:
+  targets:
+    - ./template.yaml

@@ -1,0 +1,74 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: hello-world-template
+  title: Hello World App
+  description: >
+    Creates a "Hello {name}" monorepo with a React frontend, Java Spring Boot
+    backend, Postgres database, and Redis cache. Deploys to Kind via ArgoCD.
+  tags:
+    - react
+    - java
+    - postgres
+    - redis
+    - argocd
+
+spec:
+  owner: user:default/guest
+  type: service
+
+  parameters:
+    - title: App configuration
+      required:
+        - name
+        - repoOwner
+        - repoName
+      properties:
+        name:
+          title: Name
+          type: string
+          description: The name shown in "Hello {name}" (e.g. World, Alice, Acme)
+          ui:autofocus: true
+        repoOwner:
+          title: GitHub Owner
+          type: string
+          description: Your GitHub username or organization (e.g. my-org)
+        repoName:
+          title: Repository Name
+          type: string
+          description: The new GitHub repository name (e.g. hello-world-app)
+
+  steps:
+    - id: fetch
+      name: Fetch template skeleton
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          name: ${{ parameters.name }}
+          repoOwner: ${{ parameters.repoOwner }}
+          repoName: ${{ parameters.repoName }}
+
+    - id: publish
+      name: Publish to GitHub
+      action: publish:github
+      input:
+        allowedHosts: ['github.com']
+        description: Hello World app — says "Hello ${{ parameters.name }}"
+        repoUrl: github.com?owner=${{ parameters.repoOwner }}&repo=${{ parameters.repoName }}
+        defaultBranch: main
+
+    - id: register
+      name: Register in Backstage catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['publish'].output.remoteUrl }}
+      - title: Open in Backstage catalog
+        icon: catalog
+        entityRef: ${{ steps['register'].output.entityRef }}
