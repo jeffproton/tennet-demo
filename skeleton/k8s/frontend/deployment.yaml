@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: ghcr.io/YOUR_ORG/YOUR_REPO/frontend:latest
+          image: ghcr.io/${{ (values.repoOwner + "/" + values.repoName) | lower }}/frontend:latest
           ports:
             - containerPort: 80
           readinessProbe:

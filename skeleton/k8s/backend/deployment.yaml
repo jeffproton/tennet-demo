@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: ghcr.io/YOUR_ORG/YOUR_REPO/backend:latest
+          image: ghcr.io/${{ (values.repoOwner + "/" + values.repoName) | lower }}/backend:latest
           ports:
             - containerPort: 8080
           envFrom:
