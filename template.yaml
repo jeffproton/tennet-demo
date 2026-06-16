@@ -23,7 +23,6 @@ spec:
         - name
         - repoOwner
         - repoName
-        - githubToken
       properties:
         name:
           title: Name
@@ -38,11 +37,6 @@ spec:
           title: Repository Name
           type: string
           description: The new GitHub repository name (e.g. hello-world-app)
-        githubToken:
-          title: GitHub Token
-          type: string
-          description: GitHub PAT with write:packages scope — used to push images to GHCR
-          ui:field: Secret
 
   steps:
     - id: fetch
@@ -62,8 +56,7 @@ spec:
         description: Hello World app — says "Hello ${{ parameters.name }}"
         repoUrl: github.com?owner=${{ parameters.repoOwner }}&repo=${{ parameters.repoName }}
         defaultBranch: main
-        secrets:
-          GHCR_TOKEN: ${{ parameters.githubToken }}
+        repoVisibility: public
 
     - id: register
       name: Register in Backstage catalog
