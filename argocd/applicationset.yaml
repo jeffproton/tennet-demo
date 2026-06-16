@@ -1,0 +1,54 @@
+# ---------------------------------------------------------------------------
+# One-time bootstrap. Apply this ONCE to your cluster:
+#
+#   kubectl apply -f argocd/applicationset.yaml
+#
+# After that, ArgoCD scans the GitHub org/user below for any repo tagged with
+# the topic "hello-world-app" and automatically creates + syncs an Application
+# for it. The Backstage template tags every repo it scaffolds, so new apps
+# deploy themselves with no further kubectl.
+# ---------------------------------------------------------------------------
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: hello-world-apps
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - scmProvider:
+        github:
+          # The GitHub user or org whose repos ArgoCD should scan.
+          organization: jeffproton
+          # A classic PAT with `repo` scope (read is enough for public repos).
+          # Create the secret with:
+          #   kubectl -n argocd create secret generic github-token \
+          #     --from-literal=token=ghp_xxx
+          tokenRef:
+            secretName: github-token
+            key: token
+        cloneProtocol: https
+        filters:
+          # "labelMatch" matches GitHub repository *topics*.
+          - labelMatch: hello-world-app
+  template:
+    metadata:
+      name: "{{ .repository }}"
+    spec:
+      project: default
+      source:
+        repoURL: "{{ .url }}"
+        targetRevision: "{{ .branch }}"
+        path: k8s
+        directory:
+          recurse: true
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: hello-world
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

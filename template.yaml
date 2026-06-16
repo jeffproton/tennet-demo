@@ -57,6 +57,10 @@ spec:
         repoUrl: github.com?owner=${{ parameters.repoOwner }}&repo=${{ parameters.repoName }}
         defaultBranch: main
         repoVisibility: public
+        # This topic is how the ArgoCD ApplicationSet discovers the repo and
+        # auto-creates an Application for it — no manual kubectl apply needed.
+        topics:
+          - hello-world-app
 
     - id: register
       name: Register in Backstage catalog

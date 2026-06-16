@@ -30,7 +30,7 @@ In your Backstage `app-config.yaml`, add this repo as a catalog location:
 catalog:
   locations:
     - type: url
-      target: https://github.com/YOUR_ORG/tennet-demo/blob/main/catalog-info.yaml
+      target: https://github.com/jeffproton/tennet-demo/blob/main/catalog-info.yaml
 ```
 
 Then navigate to **Create → Hello World App** and fill in:
@@ -38,7 +38,22 @@ Then navigate to **Create → Hello World App** and fill in:
 - **GitHub Owner** — your GitHub username or org
 - **Repository Name** — the new repo to create
 
-Backstage will scaffold the repo, push it to GitHub, and register it in the catalog.
+Backstage will scaffold the repo, push it to GitHub (tagged with the topic `hello-world-app`), and register it in the catalog.
+
+### One-time ArgoCD bootstrap
+
+Deployment is automatic via an ArgoCD **ApplicationSet** that watches your GitHub org for repos tagged `hello-world-app`. You apply it **once**; after that every repo the template creates is discovered and deployed with no manual `kubectl`.
+
+```bash
+# 1. Edit argocd/applicationset.yaml -> spec...github.organization (your GH user/org)
+# 2. Give ArgoCD a token to read the GitHub API:
+kubectl -n argocd create secret generic github-token \
+  --from-literal=token=ghp_your_pat_here
+# 3. Apply the ApplicationSet (once):
+kubectl apply -f argocd/applicationset.yaml
+```
+
+Within its poll interval ArgoCD finds each tagged repo, creates an `Application` named after the repo, and syncs everything under its `k8s/` path.
 
 ### Run the pipeline
 
@@ -48,14 +63,7 @@ Push to `main` triggers the GitHub Actions workflow which:
 
 ### Deploy with ArgoCD
 
-Apply the ArgoCD Application after updating the `repoURL` with your repo:
-
-```bash
-# Update repoURL in skeleton/k8s/argocd/application.yaml, then:
-kubectl apply -f k8s/argocd/application.yaml
-```
-
-ArgoCD will sync all manifests under `k8s/` and create the `hello-world` namespace automatically.
+Nothing to do per app. Once the ApplicationSet bootstrap above is in place, scaffolding a repo (tagged `hello-world-app`) is enough — ArgoCD discovers it, creates the `Application`, and syncs all manifests under `k8s/`, creating the `hello-world` namespace automatically.
 
 ### Access the app
 
@@ -92,6 +100,8 @@ npm run dev   # proxies /api to localhost:8080
 tennet-demo/
 ├── catalog-info.yaml          # Registers this repo in Backstage
 ├── template.yaml              # Backstage template definition
+├── argocd/
+│   └── applicationset.yaml    # One-time bootstrap: auto-discovers tagged repos
 └── skeleton/                  # Files copied into the generated repo
     ├── .github/workflows/ci.yaml
     ├── catalog-info.yaml
@@ -102,6 +112,5 @@ tennet-demo/
         ├── postgres/
         ├── redis/
         ├── backend/
-        ├── frontend/
-        └── argocd/
+        └── frontend/
 ```
