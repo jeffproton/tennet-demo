@@ -1,3 +1,4 @@
+{% raw %}
 name: CI
 
 on:
@@ -47,3 +48,4 @@ jobs:
           git add k8s/frontend/deployment.yaml k8s/backend/deployment.yaml
           git diff --cached --quiet || git commit -m "ci: update image tags [skip ci]"
           git push
+{% endraw %}
