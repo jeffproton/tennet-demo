@@ -28,19 +28,19 @@ jobs:
         with:
           context: ./frontend
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ghcr.io/${{ github.repository_owner }}/frontend:latest
+          tags: ghcr.io/${{ github.repository }}/frontend:latest
 
       - name: Build and push backend
         uses: docker/build-push-action@v7
         with:
           context: ./backend
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ghcr.io/${{ github.repository_owner }}/backend:latest
+          tags: ghcr.io/${{ github.repository }}/backend:latest
 
       - name: Update k8s image tags
         if: github.event_name != 'pull_request'
         run: |
-          REPO=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           sed -i "s|ghcr.io/YOUR_ORG/YOUR_REPO/frontend:latest|ghcr.io/${REPO}/frontend:latest|g" k8s/frontend/deployment.yaml
           sed -i "s|ghcr.io/YOUR_ORG/YOUR_REPO/backend:latest|ghcr.io/${REPO}/backend:latest|g"   k8s/backend/deployment.yaml
           git config user.name  "github-actions[bot]"
